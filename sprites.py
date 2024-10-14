@@ -1,153 +1,137 @@
-#File was created by: Desmond Moran
+#  This file was created by: Desmond Moran
+
 import pygame as pg
+import random 
 from pygame.sprite import Sprite
-from random import randint
 from settings import*
-from main import*
 
-#  create and define player class
-class Player(Sprite): 
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((32, 32))
-        self.image.fill(GREEN)
-        self.rect = self.image.get_rect()
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
-        self.speed = 20
-        self.coins = 0
-        self.vx, self.vy = 0, 0
+# Shapes
+S = [['.....',
+      '.....',
+      '..00.',
+      '.00..',
+      '.....'],
+     ['.....',
+      '..0..',
+      '..00.',
+      '...0.',
+      '.....']]
 
-#  defines player action when keys are pressed
-    def get_keys(self):
-        keys = pg.key.get_pressed()
-        if keys[pg.K_w]:
-            self.vy -= self.speed
-        if keys[pg.K_s]:
-            self.vy += self.speed
-        if keys[pg.K_a]:
-            self.vx -= self.speed
-        if keys[pg.K_d]:
-            self.vx += self.speed
+Z = [['.....',
+      '.....',
+      '.00..',
+      '..00.',
+      '.....'],
+     ['.....',
+      '..0..',
+      '.00..',
+      '.0...',
+      '.....']]
 
-    def collide_with_walls(self, dir):
-        if dir == 'x':
-            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-            if hits:
-                if self.vx > 0:
-                    self.x = hits[0].rect.left - TILESIZE
-                if self.vx < 0:
-                    self.x = hits[0].rect.right
-                self.vx = 0
-                self.rect.x = self.x
-                print("this works")
-            
-        
-        if dir == 'y':
-            hits = pg.sprite.spritecollide(self, self.game.all_walls, False)
-            if hits:
-                if self.vy > 0:
-                    self.y = hits[0].rect.top - TILESIZE
-                if self.vy < 0:
-                    self.y = hits[0].rect.bottom
-                self.vy = 0
-                self.rect.y = self.y
-                print("Collided on x axis")
+I = [['.....',
+      '..0..',
+      '..0..',
+      '..0..',
+      '..0..'],
+     ['.....',
+      '0000.',
+      '.....',
+      '.....',
+      '.....']]
 
-    def collide_with_stuff(self, group, kill):
-        hits = pg.sprite.spritecollide(self, group, kill)
-        if hits:
-            if str(hits[0].__class__.__name__) == "Powerup":
-                self.speed += 75
-                print("Powerup")
-            if str(hits[0].__class__.__name__) == "Coin":
-                self.coins += 1
-                print("got coin")
-            
+O = [['.....',
+      '.....',
+      '.00..',
+      '.00..',
+      '.....']]
 
+J = [['.....',
+      '.0...',
+      '.000.',
+      '.....',
+      '.....'],
+     ['.....',
+      '..00.',
+      '..0..',
+      '..0..',
+      '.....'],
+     ['.....',
+      '.....',
+      '.000.',
+      '...0.',
+      '.....'],
+     ['.....',
+      '..0..',
+      '..0..',
+      '.00..',
+      '.....']]
 
-    def update(self):
-        self.get_keys()
-        self.x += self.vx * self.game.dt
-        self.y += self.vy * self.game.dt
+L = [['.....',
+      '...0.',
+      '.000.',
+      '.....',
+      '.....'],
+     ['.....',
+      '..0..',
+      '..0..',
+      '..00.',
+      '.....'],
+     ['.....',
+      '.....',
+      '.000.',
+      '.0...',
+      '.....'],
+     ['.....',
+      '.00..',
+      '..0..',
+      '..0..',
+      '.....']]
 
-        if self.rect.x > WIDTH:
-            self.x = 0
-        elif self.rect.x < 0:
-            self.x = WIDTH - TILESIZE
-        
-        if self.rect.y > HEIGHT:
-            self.y = 0
-        elif self.rect.y < 0:
-            self.y = HEIGHT - TILESIZE
+T = [['.....',
+      '..0..',
+      '.000.',
+      '.....',
+      '.....'],
+     ['.....',
+      '..0..',
+      '..00.',
+      '..0..',
+      '.....'],
+     ['.....',
+      '.....',
+      '.000.',
+      '..0..',
+      '.....'],
+     ['.....',
+      '..0..',
+      '.00..',
+      '..0..',
+      '.....']]
 
+shapes = [S, Z, I, O, J, T, L]
+colors = [RED, GREEN, BLUE, PINK, YELLOW]
 
-        self.rect.x = self.x
-        self.collide_with_walls('x')
-        
-        self.rect.y = self.y 
-        self.collide_with_walls('y')
+class Shapes(Sprite):
+    def __init__(self, x, y, shape):
+        self.x = x
+        self.y = y
+        self.shape = shape
+        self.color = colors[shapes.index(shape)]
+        self.rotation = 0
 
-        self.collide_with_stuff(self.game.all_powerups, True)
-        self.collide_with_stuff(self.game.all_coins, True)
-        
-       
-     
+def get_shape():
+        return Shapes(5, 0, random.choice(shapes))
 
-class Mob(Sprite): 
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((32, 32))
-        self.image.fill(RED)
-        self.rect = self.image.get_rect()
-        self.rect.x = x 
-        self.rect.y = y 
-        self.speed = 20
-    def update(self):
-        self.rect.x += self.speed
-        if self.rect.x > WIDTH or self.rect.x < 0:
-            self.speed *= -1
-            self.rect.y += 32
-        if self.rect.y > HEIGHT:
-            self.rect.y = 0
-        if self.rect.colliderect(self.game.player):
-            self.speed *= -1
-            
+def create_grid(locked_pos={}):
+    grid = [[(0, 0, 0) for x in range(col)] for y in range(row)]  # grid represented rgb tuples
 
-class Wall(Sprite): 
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.all_walls
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(BLUE)
-        self.rect = self.image.get_rect()
-        self.rect.x = x 
-        self.rect.y = y
+    # locked_positions dictionary
+    # (x,y):(r,g,b)
+    for y in range(row):
+        for x in range(col):
+            if (x, y) in locked_pos:
+                color = locked_pos[
+                    (x, y)]  # get the value color (r,g,b) from the locked_positions dictionary using key (x,y)
+                grid[y][x] = color  # set grid position to color
 
-class Powerup(Sprite):
-     def __init__(self, game, x, y):   
-        self.groups = game.all_sprites, game.all_powerups
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(PURPLE)
-        self.rect = self.image.get_rect()
-        self.rect.x = x 
-        self.rect.y = y  
-
-class Coin(Sprite):
-     def __init__(self, game, x, y):   
-        self.groups = game.all_sprites, game.all_coins
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(YELLOW)
-        self.rect = self.image.get_rect()
-        self.rect.x = x 
-        self.rect.y = y  
-    
+    return grid
