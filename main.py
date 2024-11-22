@@ -1,11 +1,18 @@
 # This file was created by: Desmond Moran
-# https://www.techwithtim.net/tutorials/game-development-with-python/tetris-pygame/tutorial-1 
 import pygame as pg
 from pygame.sprite import Sprite
 from settings import *
 from sprites import*
 import random
 pg.font.init()
+
+'''
+sources:
+https://www.techwithtim.net/tutorials/game-development-with-python/tetris-pygame/tutorial-1 
+
+Make my code more alike the classes code
+'''
+
 
 
 class Piece(object):
@@ -157,7 +164,7 @@ def draw_window(surface, grid, score= 0, last_score=0):
     sx = top_left_x - 200
     sy = top_left_y + 200
 
-    surface.blit(label, (sx + 20, sy + 160))
+    surface.blit(label, (sx-40, sy + 160))
  
     for i in range(len(grid)):
         for j in range(len(grid[i])):
